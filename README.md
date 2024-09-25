@@ -1,1 +1,1 @@
-testing the connection between Hostinger and GitHub
+test
