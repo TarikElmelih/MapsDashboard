@@ -25,6 +25,7 @@
     </div>
 
     <!-- User List -->
+
     <div class="space-y-4 mb-6 mx-4 lg:mx-10">
         @foreach($users as $user)
             <div class="bg-white p-4 rounded-md shadow-md">

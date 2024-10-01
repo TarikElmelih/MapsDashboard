@@ -30,14 +30,17 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/admin/usersDetails/update/{id}', [AdminController::class, 'update'])->name('admin.usersDetails.update');
         Route::get('/admin/usersDetails/delete/{id}', [AdminController::class, 'delete'])->name('admin.usersDetails.delete');
         Route::get('/admin/usersDetails/show/{id}', [AdminController::class, 'show'])->name('admin.usersDetails.show');
+        Route::get('/admin/users/{id}/edit-points', [AdminController::class, 'editPoints'])->name('admin.editPoints');
+        Route::put('/admin/users/{id}/update-points', [AdminController::class, 'updatePoints'])->name('admin.updatePoints');
+        Route::get('/admin/points', [AdminController::class, 'points'])->name('admin.points');
     });
 
     // Trainer routes
     Route::middleware(['trainer'])->group(function () {
         Route::get('/trainer/dashboard', [TrainerController::class, 'index'])->name('trainer.dashboard');
-        Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users');
-        Route::post('/admin/review/{id}', [AdminController::class, 'review'])->name('admin.review');
-       
+        Route::get('/trainer/users/{id}/edit-points', [TrainerController::class, 'editPoints'])->name('trainer.editPoints');
+        Route::put('/trainer/users/{id}/update-points', [TrainerController::class, 'updatePoints'])->name('trainer.updatePoints');
+        Route::get('/trainer/points', [TrainerController::class, 'points'])->name('trainer.points');
     });
 
     // Student routes

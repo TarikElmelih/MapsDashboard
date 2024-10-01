@@ -34,8 +34,14 @@ class AdminController extends Controller
             }
         }
         
+        $averageCommitmentPoints = User::avg('commitment_points');
+        $averageParticipationPoints = User::avg('participation_points');
+        $averageTestPoints = User::avg('test_points');
+        $averageProjectsCount = User::avg('projects_count');
+    
         return view('admin.dashboard', compact(
-            'users', 'totalUsers', 'completedProfiles', 'pendingProfiles', 'notSufficientProfiles'
+            'users', 'totalUsers', 'completedProfiles', 'pendingProfiles', 'notSufficientProfiles',
+            'averageCommitmentPoints', 'averageParticipationPoints', 'averageTestPoints', 'averageProjectsCount'
         ));
     }
     
@@ -111,5 +117,25 @@ class AdminController extends Controller
     {
         $users = User::find($id);
         return view('admin.show', compact('users'));
+    }
+
+    public function editPoints($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.edit_points', compact('user'));
+    }
+
+    public function updatePoints(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $user->update($request->only(['commitment_points', 'participation_points', 'test_points', 'projects_count']));
+        return redirect()->route('admin.usersDetails')->with('success', 'User points updated successfully');
+    }
+
+    public function points()
+    {
+        $users = User::all(); 
+        $lastFiveFiles = UserFile::with('user')->orderBy('created_at', 'desc')->limit(5)->get();
+        return view('admin.points', compact('users', 'lastFiveFiles'));
     }
 }

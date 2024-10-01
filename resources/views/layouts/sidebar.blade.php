@@ -26,9 +26,14 @@
 
             @if(auth()->user()->role === 'admin')
                 <a href="{{ route('admin.users') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-                    <i class="fas fa-user mr-2"></i> Trainees
+                    <i class="fas fa-user mr-2"></i> Soft Skills
                 </a>
-                
+                <a href="{{ route('admin.points') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Hard Skills
+                </a>
+
+
+
                 <a href="{{ route('admin.usersDetails') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
                     <i class="fas fa-user mr-2"></i> Users
                 </a>
@@ -36,7 +41,10 @@
 
             @if(auth()->user()->role === 'trainer')
                 <a href="{{ route('admin.users') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-                    <i class="fas fa-user mr-2"></i> Trainees
+                    <i class="fas fa-user mr-2"></i> Soft Skills
+                </a>
+                <a href="{{ route('admin.points') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Hard Skills
                 </a>
             @endif
 
