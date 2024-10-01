@@ -5,25 +5,41 @@
         </h1>
     
     <nav class="space-y-4">
-        @if (auth()->user()->is_admin)
-        <a href="{{ route('admin.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-            <i class="fas fa-user mr-2"></i> Dashboard
-        </a>
-        @else
-        <a href="{{ route('dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-            <i class="fas fa-home mr-2"></i> Dashboard
-        </a>
-        @endif
-        @if (auth()->user()->is_admin)
-        <a href="{{ route('admin.users') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-            <i class="fas fa-user mr-2"></i> Trainees
-        </a>
-        @endif
-        @if (auth()->user()->is_admin)
-        <a href="{{ route('admin.usersDetails') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
-            <i class="fas fa-user mr-2"></i> Users
-        </a>
-        @endif
+      
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Admin Dashboard
+                </a>
+            @endif
+
+            @if(auth()->user()->role === 'trainer')
+                <a href="{{ route('trainer.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-home mr-2"></i> Trainer Dashboard
+                </a>
+            @endif
+
+            @if(auth()->user()->role === 'student')
+                <a href="{{ route('student.dashboard') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-home mr-2"></i> Student Dashboard
+                </a>
+            @endif
+
+            @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.users') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Trainees
+                </a>
+                
+                <a href="{{ route('admin.usersDetails') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Users
+                </a>
+            @endif
+
+            @if(auth()->user()->role === 'trainer')
+                <a href="{{ route('admin.users') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
+                    <i class="fas fa-user mr-2"></i> Trainees
+                </a>
+            @endif
+
         <a href="{{ route('profile.index') }}" class="block py-2 px-4 rounded-lg hover:bg-blue-700 transition text-white">
             <i class="fas fa-user mr-2"></i> Profile
         </a>

@@ -24,7 +24,7 @@ class User extends Authenticatable
         'trainer',
         'facilitator',
         'code',
-        'is_admin',
+        'role',
     ];
 
     public function files()
@@ -52,5 +52,20 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isTrainer()
+    {
+        return $this->role === 'trainer';
+    }
+
+    public function isStudent()
+    {
+        return $this->role === 'student';
     }
 }
