@@ -29,12 +29,24 @@ class User extends Authenticatable
         'facilitator',
         'code',
         'role',
+        'training_type',
     ];
 
     public function files()
     {
         return $this->hasMany(UserFile::class);
     }
+
+    public function trainer()
+    {
+        return $this->belongsTo(User::class, 'trainer_id');
+    }
+
+    public function trainees()
+    {
+        return $this->hasMany(User::class, 'trainer_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *

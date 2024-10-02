@@ -13,11 +13,13 @@ class TrainerController extends Controller
 
     public function dashboard()
     {
-        $users = User::all();
-        $averageCommitmentPoints = User::avg('commitment_points');
-        $averageParticipationPoints = User::avg('participation_points');
-        $averageTestPoints = User::avg('test_points');
-        $averageProjectsCount = User::avg('projects_count');
+        $trainer = auth()->user();
+        $users = $trainer->trainees()->where('training_type', $trainer->training_type)->get();
+        
+        $averageCommitmentPoints = $users->avg('commitment_points');
+        $averageParticipationPoints = $users->avg('participation_points');
+        $averageTestPoints = $users->avg('test_points');
+        $averageProjectsCount = $users->avg('projects_count');
 
         return view('trainers.dashboard', compact(
             'users', 'averageCommitmentPoints', 'averageParticipationPoints', 'averageTestPoints', 'averageProjectsCount'
@@ -39,7 +41,8 @@ class TrainerController extends Controller
 
     public function points()
     {
-        $user = User::findOrFail(1); 
-        return view('admin.points', compact('user'));
+        $trainer = auth()->user();
+        $users = $trainer->trainees()->where('training_type', $trainer->training_type)->get();
+        return view('trainers.points', compact('users'));
     }
 }

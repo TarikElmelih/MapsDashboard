@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/trainer/users/{id}/edit-points', [TrainerController::class, 'editPoints'])->name('trainer.editPoints');
         Route::put('/trainer/users/{id}/update-points', [TrainerController::class, 'updatePoints'])->name('trainer.updatePoints');
         Route::get('/trainer/points', [TrainerController::class, 'points'])->name('trainer.points');
+        Route::get('/admin/users', [AdminController::class, 'index'])->name('admin.users');
+
     });
 
     // Student routes
