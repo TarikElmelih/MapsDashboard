@@ -37,7 +37,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Trainer routes
     Route::middleware(['trainer'])->group(function () {
-        Route::get('/trainer/dashboard', [TrainerController::class, 'index'])->name('trainer.dashboard');
+        Route::get('/trainer/dashboard', [TrainerController::class, 'dashboard'])->name('trainer.dashboard');
         Route::get('/trainer/users/{id}/edit-points', [TrainerController::class, 'editPoints'])->name('trainer.editPoints');
         Route::put('/trainer/users/{id}/update-points', [TrainerController::class, 'updatePoints'])->name('trainer.updatePoints');
         Route::get('/trainer/points', [TrainerController::class, 'points'])->name('trainer.points');
