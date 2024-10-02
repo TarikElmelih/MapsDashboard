@@ -24,9 +24,6 @@ return new class extends Migration
             $table->string('facilitator')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            $table->enum('training_type', ['Backend', 'Frontend', 'UI/UX', 'Graphic Design'])->nullable();
-            $table->unsignedBigInteger('trainer_id')->nullable();
-            $table->foreign('trainer_id')->references('id')->on('users')->onDelete('set null');
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
