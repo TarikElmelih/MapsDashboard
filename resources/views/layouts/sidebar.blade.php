@@ -1,7 +1,7 @@
 <div class="bg-blue-900 min-h-screen md:w-64 w-full p-6 text-white hidden md:block">
    
         <h1 class="text-2xl font-bold mb-10">
-             TVET ASB
+             TVET
         </h1>
     
     <nav class="space-y-4">

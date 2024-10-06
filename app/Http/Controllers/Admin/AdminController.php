@@ -12,7 +12,7 @@ class AdminController extends Controller
     public function dashboard()
     {
         $users = User::with('files')->get();
-        
+                
         // Calculate total counts
         $totalUsers = $users->count();
         $completedProfiles = 0;

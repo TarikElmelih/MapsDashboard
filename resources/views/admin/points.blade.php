@@ -2,67 +2,113 @@
 
 @section('content')
 <div class="bg-white p-3 sm:p-4 rounded-lg shadow-md mb-8 mx-4 sm:mx-6 mt-6">
-    <h2 class="text-lg font-semibold text-gray-700 mb-4">User Points Overview</h2>
-    
+    <h1 class="text-2xl font-bold mt-8 mb-4">Monthly Points</h1>
+
+    <!-- Month Filter Dropdown -->
     <div class="mb-4">
-        <input type="text" id="searchInput" placeholder="Search by points..." class="border rounded-md p-2 w-full" onkeyup="filterTable()">
+        <label for="month-select" class="block mb-2 text-sm font-medium text-gray-700">Select Month:</label>
+        <select id="month-select" class="block w-full p-2 border border-gray-300 rounded-md">
+            <option value="Month 1">Month 1</option>
+            <option value="Month 2">Month 2</option>
+            <option value="Month 3">Month 3</option>
+            <option value="Month 4">Month 4</option>
+            <option value="Month 5">Month 5</option>
+            <option value="Month 6">Month 6</option>
+        </select>
     </div>
 
-    <div class="overflow-x-auto">
-        <table class="min-w-full table-auto" id="pointsTable">
-            <thead>
-                <tr class="bg-gray-100 text-left">
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Name</th>
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Commitment Points</th>
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Participation Points</th>
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Test Points</th>
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Projects Count</th>
-                    <th class="px-2 py-1 sm:px-4 sm:py-2 text-xs sm:text-sm">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($users as $user)
-                <tr class="border-b">
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">{{ $user->name }}</td>
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">{{ $user->commitment_points }}</td>
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">{{ $user->participation_points }}</td>
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">{{ $user->test_points }}</td>
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">{{ $user->projects_count }}</td>
-                    <td class="px-2 py-1 sm:px-4 sm:py-2 text-sm">
-                        <a href="{{ route('admin.editPoints', $user->id) }}" class="text-blue-500 hover:underline">Edit Points</a>
-                    </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
-</div>
+    <div id="student-totals" class="overflow-x-auto"></div>
+    <div id="error-message" class="text-red-600"></div>
 
-<script>
-    function filterTable() {
-        const input = document.getElementById("searchInput").value.toLowerCase();
-        const table = document.getElementById("pointsTable");
-        const rows = table.getElementsByTagName("tr");
+    <script>
+        const sheetId = '16N1xYDpd8lzD9VMykNlitts-0N13L0nc6pjnw2LiEyk';
+        const apiKey = 'AIzaSyAPo5BNoRy4V-sakFpG0COSSbn6AZyCbL0';
+        const fixedRange = 'الاجمالي!A1:B47';  // ID and Name columns only
+        const monthRanges = {
+            'Month 1': 'الاجمالي!C1:I47',  // Dynamic data for Month 1
+            'Month 2': 'الاجمالي!J1:P47',  // Dynamic data for Month 2
+            'Month 3': 'الاجمالي!Q1:W47',  // Dynamic data for Month 3
+            'Month 4': 'الاجمالي!X1:AD47', // Dynamic data for Month 4
+            'Month 5': 'الاجمالي!AE1:AK47', // Dynamic data for Month 5
+            'Month 6': 'الاجمالي!AL1:AR47'  // Dynamic data for Month 6
+        };
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i];
-            const commitmentCell = row.getElementsByTagName("td")[0];
-            const participationCell = row.getElementsByTagName("td")[1];
-            const testCell = row.getElementsByTagName("td")[2];
-            const projectsCell = row.getElementsByTagName("td")[3];
-
-            if (commitmentCell || participationCell || testCell || projectsCell) {
-                const commitment = commitmentCell.textContent.toLowerCase();
-                const participation = participationCell.textContent.toLowerCase();
-                const test = testCell.textContent.toLowerCase();
-                const projects = projectsCell.textContent.toLowerCase();
-                if (commitment.includes(input) || participation.includes(input) || test.includes(input) || projects.includes(input)) {
-                    row.style.display = ""; // Show row
-                } else {
-                    row.style.display = "none"; // Hide row
-                }
-            }
+        // Fetch ID and Name (fixed data)
+        function fetchFixedData() {
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(fixedRange)}?key=${apiKey}`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => data.values);
         }
-    }
-</script>
+
+        // Fetch dynamic data based on the selected month
+        function fetchDynamicData(month) {
+            const range = monthRanges[month];
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+            return fetch(url)
+                .then(response => response.json())
+                .then(data => data.values);
+        }
+
+        // Render table
+        function renderTable(fixedData, dynamicData) {
+            let tableHTML = `
+                <table class="min-w-full table-auto border-collapse">
+                    <thead>
+                        <tr class="bg-gray-200">
+                            <th class="border px-4 py-2">ID</th>
+                            <th class="border px-4 py-2">Name</th>
+                            <th class="border px-4 py-2">Attendance</th>
+                            <th class="border px-4 py-2">Participation</th>
+                            <th class="border px-4 py-2">Monthly Project</th>
+                            <th class="border px-4 py-2">Total Tasks</th>
+                            <th class="border px-4 py-2">Monthly Test</th>
+                            <th class="border px-4 py-2">Excellence Points</th>
+                            <th class="border px-4 py-2">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            for (let i = 1; i < fixedData.length; i++) {  // Assuming first row is header
+                const fixedRow = fixedData[i];
+                const dynamicRow = dynamicData[i];
+
+                tableHTML += `
+                    <tr class="hover:bg-gray-100">
+                        <td class="border px-4 py-2">${fixedRow[0]}</td>   <!-- ID -->
+                        <td class="border px-4 py-2">${fixedRow[1]}</td>   <!-- Name -->
+                        <td class="border px-4 py-2">${dynamicRow[0]}</td> <!-- Attendance -->
+                        <td class="border px-4 py-2">${dynamicRow[1]}</td> <!-- Participation -->
+                        <td class="border px-4 py-2">${dynamicRow[2]}</td> <!-- Monthly Project -->
+                        <td class="border px-4 py-2">${dynamicRow[3]}</td> <!-- Total Tasks -->
+                        <td class="border px-4 py-2">${dynamicRow[4]}</td> <!-- Monthly Test -->
+                        <td class="border px-4 py-2">${dynamicRow[5]}</td> <!-- Excellence Points -->
+                        <td class="border px-4 py-2">${dynamicRow[6]}</td> <!-- Total -->
+                    </tr>
+                `;
+            }
+
+            tableHTML += '</tbody></table>';
+            document.getElementById('student-totals').innerHTML = tableHTML;
+        }
+
+        // Initial load: Fetch and render fixed data, then load first month's dynamic data
+        let fixedData = [];
+        fetchFixedData().then(data => {
+            fixedData = data;
+            fetchDynamicData('Month 1').then(dynamicData => {
+                renderTable(fixedData, dynamicData);
+            });
+        });
+
+        // Handle month selection change
+        document.getElementById('month-select').addEventListener('change', function () {
+            const selectedMonth = this.options[this.selectedIndex].text;
+            fetchDynamicData(selectedMonth).then(dynamicData => {
+                renderTable(fixedData, dynamicData);
+            });
+        });
+    </script>
+</div>
 @endsection

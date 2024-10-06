@@ -13,7 +13,11 @@
             {{ $errors->first('file') }}
         </div>
     @endif
-
+    <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg mt-8 mb-8">
+        <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800 mb-6">Your Points</h2>
+        <div id="user-points" class="mt-4"></div>
+        <div id="error-message" class="text-red-600 mt-2"></div>
+    </div>
     <div class="bg-white p-4 sm:p-6 rounded-lg shadow-lg">
         <h2 class="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-800 mb-6">Upload Your Documents</h2>
         <form action="{{ route('user.upload') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
@@ -94,5 +98,59 @@
             </table>
         </div>
     </div>
+
+    
+
+    <script>
+        const sheetId = '16N1xYDpd8lzD9VMykNlitts-0N13L0nc6pjnw2LiEyk';
+        const apiKey = 'AIzaSyAPo5BNoRy4V-sakFpG0COSSbn6AZyCbL0';
+        const range = 'التقييم!A1:D46';
+        const userId = '{{ auth()->user()->id }}'; // Get the current user's ID
+
+        const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.values || data.values.length === 0) {
+                    throw new Error('No data found in the sheet');
+                }
+                const rows = data.values;
+                const userRow = rows.find(row => row[0] === '{{ Auth::user()->code }}');
+                
+                if (userRow) {
+                    let html = '<table class="min-w-full table-auto bg-white rounded-md border border-gray-200 shadow-sm">';
+                    html += '<thead class="bg-blue-100"><tr>';
+                    html += '<th class="px-4 sm:px-6 py-3 text-left text-sm font-bold text-gray-600">ID</th>';
+                    html += '<th class="px-4 sm:px-6 py-3 text-left text-sm font-bold text-gray-600">Name</th>';
+                    html += '<th class="px-4 sm:px-6 py-3 text-left text-sm font-bold text-gray-600">Points</th>';
+                    html += '</tr></thead><tbody class="bg-white divide-y divide-gray-200">';
+                    html += '<tr>';
+                    html += `<td class="px-4 sm:px-6 py-4 whitespace-nowrap">${userRow[0]}</td>`; // ID
+                    html += `<td class="px-4 sm:px-6 py-4 whitespace-nowrap">${userRow[1]}</td>`; // Name
+                    html += `<td class="px-4 sm:px-6 py-4 whitespace-nowrap">${userRow[3]}</td>`; // Points
+                    html += '</tr>';
+                    html += '</tbody></table>';
+                    document.getElementById('user-points').innerHTML = html;
+                } else {
+                    document.getElementById('user-points').innerHTML = '<p class="text-gray-600">No points data found for your account.</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                let errorMessage = 'An error occurred while fetching data.';
+                if (error.message.includes('403')) {
+                    errorMessage = 'Access to the Google Sheet is forbidden. Please contact an administrator.';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'The specified Google Sheet could not be found. Please contact an administrator.';
+                }
+                document.getElementById('error-message').textContent = errorMessage;
+            });
+    </script>
 </div>
 @endsection
