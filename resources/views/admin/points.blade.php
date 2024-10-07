@@ -1,8 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="bg-white p-3 sm:p-4 rounded-lg shadow-md mb-8 mx-4 sm:mx-6 mt-6">
     <h1 class="text-2xl font-bold mt-8 mb-4">Monthly Points</h1>
+
+    <!-- Training Type Filter Dropdown -->
+    <div class="mb-4">
+        <label for="training-select" class="block mb-2 text-sm font-medium text-gray-700">Select Training Type:</label>
+        <select id="training-select" class="block w-full p-2 border border-gray-300 rounded-md">
+            <option value="Backend">Backend</option>
+            <option value="Frontend">Frontend</option>
+        </select>
+    </div>
 
     <!-- Month Filter Dropdown -->
     <div class="mb-4">
@@ -21,8 +31,13 @@
     <div id="error-message" class="text-red-600"></div>
 
     <script>
-        const sheetId = '16N1xYDpd8lzD9VMykNlitts-0N13L0nc6pjnw2LiEyk';
         const apiKey = 'AIzaSyAPo5BNoRy4V-sakFpG0COSSbn6AZyCbL0';
+
+        const sheetIds = {
+            'Backend': '16N1xYDpd8lzD9VMykNlitts-0N13L0nc6pjnw2LiEyk',
+            'Frontend': '1NNVD6DNdTgahs5V__fA4nbkkSR3Gggn53CaYXhUnhTc'
+        };
+
         const fixedRange = 'الاجمالي!A1:B47';  // ID and Name columns only
         const monthRanges = {
             'Month 1': 'الاجمالي!C1:I47',  // Dynamic data for Month 1
@@ -33,16 +48,19 @@
             'Month 6': 'الاجمالي!AL1:AR47'  // Dynamic data for Month 6
         };
 
+        let selectedTraining = 'Backend';  // Default training type
+        let fixedData = [];
+
         // Fetch ID and Name (fixed data)
-        function fetchFixedData() {
+        function fetchFixedData(sheetId) {
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(fixedRange)}?key=${apiKey}`;
             return fetch(url)
                 .then(response => response.json())
                 .then(data => data.values);
         }
 
-        // Fetch dynamic data based on the selected month
-        function fetchDynamicData(month) {
+        // Fetch dynamic data based on the selected month and training
+        function fetchDynamicData(sheetId, month) {
             const range = monthRanges[month];
             const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${encodeURIComponent(range)}?key=${apiKey}`;
             return fetch(url)
@@ -61,7 +79,7 @@
                             <th class="border px-4 py-2">Attendance</th>
                             <th class="border px-4 py-2">Participation</th>
                             <th class="border px-4 py-2">Monthly Project</th>
-                            <th class="border px-4 py-2">Total Tasks</th>
+                            ${selectedTraining === 'Backend' ? '<th class="border px-4 py-2">Total Tasks</th>' : ''}
                             <th class="border px-4 py-2">Monthly Test</th>
                             <th class="border px-4 py-2">Excellence Points</th>
                             <th class="border px-4 py-2">Total</th>
@@ -81,10 +99,10 @@
                         <td class="border px-4 py-2">${dynamicRow[0]}</td> <!-- Attendance -->
                         <td class="border px-4 py-2">${dynamicRow[1]}</td> <!-- Participation -->
                         <td class="border px-4 py-2">${dynamicRow[2]}</td> <!-- Monthly Project -->
-                        <td class="border px-4 py-2">${dynamicRow[3]}</td> <!-- Total Tasks -->
-                        <td class="border px-4 py-2">${dynamicRow[4]}</td> <!-- Monthly Test -->
-                        <td class="border px-4 py-2">${dynamicRow[5]}</td> <!-- Excellence Points -->
-                        <td class="border px-4 py-2">${dynamicRow[6]}</td> <!-- Total -->
+                        ${selectedTraining === 'Backend' ? `<td class="border px-4 py-2">${dynamicRow[3]}</td>` : ''} <!-- Total Tasks -->
+                        <td class="border px-4 py-2">${dynamicRow[selectedTraining === 'Backend' ? 4 : 3]}</td> <!-- Monthly Test -->
+                        <td class="border px-4 py-2">${dynamicRow[selectedTraining === 'Backend' ? 5 : 4]}</td> <!-- Excellence Points -->
+                        <td class="border px-4 py-2">${dynamicRow[selectedTraining === 'Backend' ? 6 : 5]}</td> <!-- Total -->
                     </tr>
                 `;
             }
@@ -93,22 +111,33 @@
             document.getElementById('student-totals').innerHTML = tableHTML;
         }
 
-        // Initial load: Fetch and render fixed data, then load first month's dynamic data
-        let fixedData = [];
-        fetchFixedData().then(data => {
+        // Initial load: Fetch and render fixed data, then load first month's dynamic data for Backend
+        fetchFixedData(sheetIds[selectedTraining]).then(data => {
             fixedData = data;
-            fetchDynamicData('Month 1').then(dynamicData => {
+            fetchDynamicData(sheetIds[selectedTraining], 'Month 1').then(dynamicData => {
                 renderTable(fixedData, dynamicData);
+            });
+        });
+
+        // Handle training selection change
+        document.getElementById('training-select').addEventListener('change', function () {
+            selectedTraining = this.value;
+            fetchFixedData(sheetIds[selectedTraining]).then(data => {
+                fixedData = data;
+                fetchDynamicData(sheetIds[selectedTraining], 'Month 1').then(dynamicData => {
+                    renderTable(fixedData, dynamicData);
+                });
             });
         });
 
         // Handle month selection change
         document.getElementById('month-select').addEventListener('change', function () {
             const selectedMonth = this.options[this.selectedIndex].text;
-            fetchDynamicData(selectedMonth).then(dynamicData => {
+            fetchDynamicData(sheetIds[selectedTraining], selectedMonth).then(dynamicData => {
                 renderTable(fixedData, dynamicData);
             });
         });
     </script>
 </div>
+
 @endsection
