@@ -11,6 +11,7 @@
         <select id="training-select" class="block w-full p-2 border border-gray-300 rounded-md">
             <option value="Backend">Backend</option>
             <option value="Frontend">Frontend</option>
+            <option value="Graphic">Graphic</option>
         </select>
     </div>
 
@@ -35,7 +36,8 @@
 
         const sheetIds = {
             'Backend': '16N1xYDpd8lzD9VMykNlitts-0N13L0nc6pjnw2LiEyk',
-            'Frontend': '1NNVD6DNdTgahs5V__fA4nbkkSR3Gggn53CaYXhUnhTc'
+            'Frontend': '1NNVD6DNdTgahs5V__fA4nbkkSR3Gggn53CaYXhUnhTc',
+            'Graphic': '1d55OQEMM6Yly4ZA8pDbOFJrPqlFQPsa6vVWtJqpfe4E'
         };
 
         const fixedRange = 'الاجمالي!A1:B47';  // ID and Name columns only
